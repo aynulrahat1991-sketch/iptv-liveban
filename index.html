@@ -28,26 +28,31 @@ video {width:100%;max-height:65vh;background:#000;border-radius:8px;}
 </div>
 
 <script>
-const proxies = ["https://cors.sh/","https://api.allorigins.win/raw?url="];
+const proxy = "https://cors.sh/";
 const m3uUrl = "https://raw.githubusercontent.com/ar-rony/smartiptv-playlist/master/MYIPTVLIST.m3u";
 const video = document.getElementById('video');
 const channelList = document.getElementById('channels');
 
 async function loadM3U() {
-  for(let proxy of proxies) {
-    try {
-      let res = await fetch(proxy + m3uUrl, {
-        headers: proxy.includes('cors.sh')? {'x-requested-with': 'XMLHttpRequest'} : {}
-      });
-      if(!res.ok) throw new Error("Status " + res.status);
-      let text = await res.text();
-      if(text.includes("#EXTM3U")) {
-        parseM3U(text);
-        return;
-      }
-    } catch(e) { console.log("Proxy failed:", e); }
+  try {
+    let res = await fetch(proxy + m3uUrl, {
+      headers: {'x-requested-with': 'XMLHttpRequest'}
+    });
+    
+    if(!res.ok) throw new Error("Server error: " + res.status);
+    
+    let text = await res.text();
+    
+    if(!text.includes("#EXTM3U")) throw new Error("Invalid M3U file");
+    
+    parseM3U(text);
+    
+  } catch(e) {
+    channelList.innerHTML = `<div class="error">Failed to load channels.<br><br>
+    Error: ${e.message}<br><br>
+    Solution: Turn on 'Desktop site' in Chrome menu, or try again later.</div>`;
+    console.log("Error:", e);
   }
-  channelList.innerHTML = `<div class="error">All servers failed. M3U link might be dead.</div>`;
 }
 
 function parseM3U(data) {
@@ -61,12 +66,11 @@ function parseM3U(data) {
       name = match && match[1]? match[1].trim() : "Channel";
     } else if(lines[i].startsWith('http') && lines[i].includes('.m3u8')) {
       channels.push({name: name, url: lines[i].trim()});
-      name = "Channel";
     }
   }
 
   if(channels.length === 0) {
-    channelList.innerHTML = `<div class="error">No channels found.</div>`;
+    channelList.innerHTML = `<div class="error">No channels found in M3U file.</div>`;
     return;
   }
 
@@ -75,20 +79,25 @@ function parseM3U(data) {
     let div = document.createElement('div');
     div.className = 'channel';
     div.innerText = ch.name;
-    div.onclick = () => playChannel(ch.url);
+    div.onclick = () => playChannel(ch.url, div);
     channelList.appendChild(div);
   });
 
-  playChannel(channels[0].url);
+  playChannel(channels[0].url, channelList.firstChild);
 }
 
-function playChannel(url) {
+function playChannel(url, element) {
   if(window.hls) window.hls.destroy();
+  
+  document.querySelectorAll('.channel').forEach(c => c.style.background = '#1e1e1e');
+  if(element) element.style.background = '#e50914';
+
   if(Hls.isSupported()) {
     window.hls = new Hls();
     window.hls.loadSource(url);
     window.hls.attachMedia(video);
-  } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
+    window.hls.on(Hls.Events.ERROR, (e,data) => console.log("HLS Error:", data));
+  } else {
     video.src = url;
   }
   video.play().catch(e => console.log("Play Error:", e));
