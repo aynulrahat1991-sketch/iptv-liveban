@@ -3,35 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live TV Test</title>
+<title>Live TV 8 Channels</title>
 <style>
-body{margin:0;background:#111;color:#fff;font-family:sans-serif}
-.player{max-width:700px;margin:20px auto}
-iframe{width:100%;height:350px;border:none}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:20px}
-.card{background:#222;padding:15px;border-radius:8px;text-align:center;cursor:pointer}
-.card.active{border:2px solid red;background:#333}
+body{margin:0;background:#111;color:#fff;font-family:sans-serif;text-align:center}
+h2{margin-top:20px}
+.player{max-width:900px;margin:20px auto;padding:0 10px}
+iframe{width:100%;height:450px;border:none;border-radius:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px;max-width:900px;margin:0 auto}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:#222;padding:15px;border-radius:8px;cursor:pointer;transition:0.3s}
+.card:hover{background:#333}
+.card.active{border:2px solid #ff0000;background:#330000}
 </style>
 </head>
 <body>
 
+<h2>Live TV - 8 Channels</h2>
+
 <div class="player">
-  <iframe id="ytPlayer" src="https://www.youtube.com/embed/live_stream?channel=UCUo_ITVZtR1XbZ6UMiEeqw&autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <iframe id="ytPlayer" src="https://www.youtube.com/embed/jRw7qdMDWWw?autoplay=1&mute=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 </div>
 
 <div class="grid">
-  <div class="card active" onclick="changeChannel('UCUo_ITVZtR1XbZ6UMiEeqw', this)">
-    <p>Channel 24</p>
+  <div class="card active" onclick="changeChannel('jRw7qdMDWWw', this)">
+    <p>Channel 1</p>
   </div>
 
-  <div class="card" onclick="changeChannel('UCNEBYO4dILq7CyIhB_UA', this)">
-    <p>T Sports</p>
+  <div class="card" onclick="changeChannel('UH72EKRA3Ao', this)">
+    <p>Channel 2</p>
+  </div>
+
+  <div class="card" onclick="changeChannel('AF5wnXMbDso', this)">
+    <p>Channel 3</p>
+  </div>
+
+  <div class="card" onclick="changeChannel('yxdgoJ2LlbQ', this)">
+    <p>Channel 4</p>
+  </div>
+
+  <div class="card" onclick="changeChannel('YNPKc8MymQ8', this)">
+    <p>Channel 5</p>
+  </div>
+
+  <div class="card" onclick="changeChannel('tAidYvp9xLk', this)">
+    <p>Channel 6</p>
+  </div>
+
+  <div class="card" onclick="changeChannel('dpRmnIcjKPs', this)">
+    <p>Channel 7</p>
+  </div>
+
+  <div class="card" onclick="changeChannel('ITx_k7uNFP4', this)">
+    <p>Channel 8</p>
   </div>
 </div>
 
 <script>
-function changeChannel(channelId, element){
-  document.getElementById('ytPlayer').src = 'https://www.youtube.com/embed/live_stream?channel=' + channelId + '&autoplay=1';
+function changeChannel(videoId, element){
+  document.getElementById('ytPlayer').src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&mute=1';
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
   element.classList.add('active');
 }
