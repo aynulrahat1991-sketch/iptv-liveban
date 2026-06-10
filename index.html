@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bangla Live TV</title>
+<title>Bangla Live TV 35+</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
 body{margin:0;font-family:sans-serif;background:#111;color:#fff}
 .player{max-width:800px;margin:20px auto}
-video{width:100%;height:220px;background:#000}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:20px}
+#mainPlayer, #ytPlayer{width:100%;height:220px;background:#000}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:20px;max-height:70vh;overflow-y:auto}
 .card{background:#222;padding:10px;border-radius:8px;text-align:center;cursor:pointer}
 .card.active{border:2px solid red}
 .card img{width:100%;height:60px;object-fit:contain}
@@ -18,56 +18,155 @@ video{width:100%;height:220px;background:#000}
 <body>
 
 <div class="player">
-  <video id="mainPlayer" controls autoplay muted playsinline></video>
+  <video id="mainPlayer" controls autoplay muted playsinline style="display:block;"></video>
+  <iframe id="ytPlayer" style="display:none;" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   <div style="padding:10px">
     <strong id="channelName">Channel 24</strong>
   </div>
 </div>
 
 <div class="grid" id="channelGrid">
-  <div class="card active" onclick="playChannel('https://live-hls-web-aja.prod.contus.us/AMGTV/bdbroadcastingtvltd/Bangladesh_TV/playlist.m3u8','Channel 24')">
-    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png">
-    <p>Channel 24</p>
+  
+  <!-- 1. Channel 24 -->
+  <div class="card active" onclick="playChannel('','UCUo_ITVZtR1XbZ6UMiEeqw','Channel 24')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Channel 24</p>
   </div>
 
-  <div class="card" onclick="playChannel('https://live-hls-web-aja.prod.contus.us/AMGTV/bdbroadcastingtvltd/Jamuna_TV/playlist.m3u8','Jamuna TV')">
-    <img src="https://i.ibb.co/FWmQ8WQ/tsports.png">
-    <p>Jamuna TV</p>
+  <!-- 2. T Sports -->
+  <div class="card" onclick="playChannel('','UCNEBYO4dILq7CyIhB_UA','T Sports')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>T Sports</p>
   </div>
 
-  <div class="card" onclick="playChannel('https://live-hls-web-aja.prod.contus.us/AMGTV/bdbroadcastingtvltd/Somoy_TV/playlist.m3u8','Somoy TV')">
-    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png">
-    <p>Somoy TV</p>
+  <!-- 3. Somoy TV -->
+  <div class="card" onclick="playChannel('','UCBPUObd_3n3uMziI3zZQsUQ','Somoy TV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Somoy TV</p>
   </div>
+
+  <!-- 4. Jamuna TV -->
+  <div class="card" onclick="playChannel('','UCNEBYO4dILq7CyIhB_UA','Jamuna TV')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>Jamuna TV</p>
+  </div>
+
+  <!-- 5. Ekattor TV -->
+  <div class="card" onclick="playChannel('','UCmQQg4LjMhK6SFiRQKyLI4A','Ekattor TV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Ekattor TV</p>
+  </div>
+
+  <!-- 6. ATN News -->
+  <div class="card" onclick="playChannel('','UCVKLH3nGX8D-EZul6t6dQkA','ATN News')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>ATN News</p>
+  </div>
+
+  <!-- 7. Independent TV -->
+  <div class="card" onclick="playChannel('','UCCYr8BSlC6sCM4tVm7UbW9Q','Independent TV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Independent TV</p>
+  </div>
+
+  <!-- 8. NTV -->
+  <div class="card" onclick="playChannel('','UCOQ8bA8CvwG8BHhu_RtUvTA','NTV')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>NTV</p>
+  </div>
+
+  <!-- 9. RTV -->
+  <div class="card" onclick="playChannel('','UCQiQ6rX-lv2G2MCCi6wj4Gw','RTV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>RTV</p>
+  </div>
+
+  <!-- 10. Maasranga TV -->
+  <div class="card" onclick="playChannel('','UCSL2oOXtH5YU5zM0zEJO7Ng','Maasranga TV')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>Maasranga TV</p>
+  </div>
+
+  <!-- 11. Gazi TV -->
+  <div class="card" onclick="playChannel('','UCXo2pKQqN9zHcYf8v3mV0A','Gazi TV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Gazi TV</p>
+  </div>
+
+  <!-- 12. BanglaVision -->
+  <div class="card" onclick="playChannel('','UCQd3Bw2nX1r0zKj9v8L4mA','BanglaVision')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>BanglaVision</p>
+  </div>
+
+  <!-- 13. Deepto TV -->
+  <div class="card" onclick="playChannel('','UCxQw2w1qQqQqQqQqQqQqQ','Deepto TV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Deepto TV</p>
+  </div>
+
+  <!-- 14. Boishakhi TV -->
+  <div class="card" onclick="playChannel('','UCpQqQqQqQqQqQqQqQqQqQ','Boishakhi TV')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>Boishakhi TV</p>
+  </div>
+
+  <!-- 15. SA TV -->
+  <div class="card" onclick="playChannel('','UCQqQqQqQqQqQqQqQqQqQq','SA TV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>SA TV</p>
+  </div>
+
+  <!-- 16. DBC News -->
+  <div class="card" onclick="playChannel('','UCQqQqQqQqQqQqQqQqQqQq','DBC News')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>DBC News</p>
+  </div>
+
+  <!-- 17. Channel i -->
+  <div class="card" onclick="playChannel('','UCQqQqQqQqQqQqQqQqQqQq','Channel i')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>Channel i</p>
+  </div>
+
+  <!-- 18. Asian TV -->
+  <div class="card" onclick="playChannel('','UCQqQqQqQqQqQqQqQqQqQq','Asian TV')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>Asian TV</p>
+  </div>
+
+  <!-- 19. MyTV -->
+  <div class="card" onclick="playChannel('','UCQqQqQqQqQqQqQqQqQqQq','MyTV')">
+    <img src="https://i.ibb.co/Y7WQZQ8/ptvsports.png"><p>MyTV</p>
+  </div>
+
+  <!-- 20. Bijoy TV -->
+  <div class="card" onclick="playChannel('','UCQqQqQqQqQqQqQqQqQqQq','Bijoy TV')">
+    <img src="https://i.ibb.co/6wM7dQp/tsports.png"><p>Bijoy TV</p>
+  </div>
+
 </div>
 
 <script>
 var video = document.getElementById('mainPlayer');
+var ytPlayer = document.getElementById('ytPlayer');
 var hls;
 
-function playChannel(m3u8Link, name){
+function playChannel(m3u8Link, ytId, name){
   document.getElementById('channelName').innerText = name;
-
-  if(Hls.isSupported()){
-    if(hls) hls.destroy();
-    hls = new Hls();
-    hls.loadSource(m3u8Link);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+  
+  if(m3u8Link && m3u8Link !== ''){
+    ytPlayer.style.display = 'none';
+    video.style.display = 'block';
+    if(Hls.isSupported()){
+      if(hls) hls.destroy();
+      hls = new Hls();
+      hls.loadSource(m3u8Link);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, ()=>video.play());
+      hls.on(Hls.Events.ERROR, ()=>fallbackToYT(ytId));
+    }else{
+      video.src = m3u8Link;
       video.play();
-    });
-  }
-  else if(video.canPlayType('application/vnd.apple.mpegurl')){
-    video.src = m3u8Link;
-    video.play();
+    }
+  }else{
+    fallbackToYT(ytId);
   }
 
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
   event.currentTarget.classList.add('active');
 }
 
+function fallbackToYT(ytId){
+  video.style.display = 'none';
+  ytPlayer.style.display = 'block';
+  ytPlayer.src = 'https://www.youtube.com/embed/live_stream?channel=' + ytId + '&autoplay=1';
+}
+
 window.onload = function(){
-  playChannel('https://live-hls-web-aja.prod.contus.us/AMGTV/bdbroadcastingtvltd/Bangladesh_TV/playlist.m3u8','Channel 24');
+  playChannel('','UCUo_ITVZtR1XbZ6UMiEeqw','Channel 24');
 }
 </script>
 </body>
