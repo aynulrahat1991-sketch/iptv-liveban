@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live TV BD</title>
-
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0f0f0f;color:#fff;font-family:sans-serif}
@@ -36,22 +34,7 @@ video{width:100%;height:auto}
 const channels = [
   {name:"Channel 24", url:"https://cdn.jagobd.com/live/Channel24/index.m3u8"},
   {name:"Somoy TV", url:"https://cdn.jagobd.com/live/Somoy/index.m3u8"},
-  {name:"Jamuna TV", url:"https://cdn.jagobd.com/live/Jamuna/index.m3u8"},
-  {name:"News24", url:"https://cdn.jagobd.com/live/News24/index.m3u8"},
-  {name:"Independent TV", url:"https://cdn.jagobd.com/live/Independent/index.m3u8"},
-  {name:"DBC News", url:"https://cdn.jagobd.com/live/DBC/index.m3u8"},
-  {name:"Channel i", url:"https://cdn.jagobd.com/live/Channeli/index.m3u8"},
-  {name:"RTV", url:"https://cdn.jagobd.com/live/RTV/index.m3u8"},
-  {name:"Boishakhi TV", url:"https://cdn.jagobd.com/live/Boishakhi/index.m3u8"},
-  {name:"ATN News", url:"https://cdn.jagobd.com/live/ATN/index.m3u8"},
-  {name:"ATN Bangla", url:"https://cdn.jagobd.com/live/ATNBangla/index.m3u8"},
-  {name:"NTV", url:"https://cdn.jagobd.com/live/NTV/index.m3u8"},
-  {name:"Deepto TV", url:"https://cdn.jagobd.com/live/Deepto/index.m3u8"},
-  {name:"BanglaVision", url:"https://cdn.jagobd.com/live/Banglavision/index.m3u8"},
-  {name:"GTV", url:"https://cdn.jagobd.com/live/GTV/index.m3u8"},
-  {name:"Ekushey TV", url:"https://cdn.jagobd.com/live/ETV/index.m3u8"},
-  {name:"SA TV", url:"https://cdn.jagobd.com/live/SATV/index.m3u8"},
-  {name:"Bijoy TV", url:"https://cdn.jagobd.com/live/Bijoy/index.m3u8"}
+  {name:"ATN News", url:"https://cdn.jagobd.com/live/ATN/index.m3u8"}
 ];
 
 const video = document.getElementById('video');
@@ -60,7 +43,6 @@ let hls = null;
 
 function playChannel(url){
   if(hls) hls.destroy();
-
   if(Hls.isSupported()){
     hls = new Hls();
     hls.loadSource(url);
@@ -74,7 +56,7 @@ function playChannel(url){
   }
 }
 
-channels.forEach((ch,index)=>{
+channels.forEach((ch)=>{
   const div = document.createElement('div');
   div.className = 'card';
   div.innerHTML = `<p>${ch.name}</p>`;
@@ -82,9 +64,7 @@ channels.forEach((ch,index)=>{
   list.appendChild(div);
 });
 
-// First channel auto play
 playChannel(channels[0].url);
 </script>
-
 </body>
 </html>
