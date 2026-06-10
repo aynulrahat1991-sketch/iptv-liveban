@@ -34,7 +34,7 @@ video {width:100%;max-height:60vh;background:#000;border-radius:8px;}
 </div>
 
 <script>
-const proxy = "https://corsproxy.io/?";
+const proxy = "https://api.allorigins.win/raw?url=";
 const m3uUrl = "https://go.skym3u.top/k98v.m3u";
 const video = document.getElementById('video');
 const channelList = document.getElementById('channels');
@@ -80,7 +80,6 @@ function parseM3U(data) {
     channelList.appendChild(div);
   });
 
-  // Auto play first channel
   playChannel(channels[0].url);
 }
 
@@ -98,7 +97,6 @@ function playChannel(url) {
   video.play().catch(e => console.log("Play Error:", e));
 }
 
-// Load M3U on page load
 loadM3U();
 </script>
 </body>
