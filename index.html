@@ -9,84 +9,61 @@
 body {margin:0;font-family:Arial;background:#0a0a0a;color:#fff;}
 header {background:#000;padding:15px;text-align:center;border-bottom:2px solid #e50914;}
 header h2 {margin:0;color:#e50914;}
-.container {padding:15px;max-width:1300px;margin:auto;}
+.container {padding:15px;max-width:1000px;margin:auto;}
 video {width:100%;max-height:65vh;background:#000;border-radius:8px;}
-.channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:15px;}
-.channel {background:#1e1e1e;padding:12px;text-align:center;border-radius:6px;cursor:pointer;font-size:14px;border:1px solid #333;}
-.channel:hover {background:#e50914;}
-.loading,.error {text-align:center;padding:30px;color:#888;}
-.error {color:#ff4444;}
+.channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:15px;}
+.channel {background:#1e1e1e;padding:15px;text-align:center;border-radius:6px;cursor:pointer;font-size:15px;border:1px solid #333;transition:0.2s;}
+.channel:hover {background:#e50914;transform:scale(1.05);}
 </style>
 </head>
 <body>
 <header><h2>Live TV Bangladesh</h2></header>
 <div class="container">
   <video id="video" controls autoplay muted></video>
-  <div class="channel-list" id="channels">
-    <div class="loading">Loading channels...</div>
-  </div>
+  <div class="channel-list" id="channels"></div>
 </div>
 
 <script>
-const proxy = "https://api.allorigins.win/raw?url=";
-const m3uUrl = "https://raw.githubusercontent.com/ar-rony/smartiptv-playlist/master/MYIPTVLIST.m3u";
+const channels = [
+  {name: "Somoy TV", url: "https://somoytv-live.akamaized.net/hls/live/2022420/somoytv/index.m3u8"},
+  {name: "Jamuna TV", url: "https://live.jamunatv.tv/hls/live/2018098/jamunatv/index.m3u8"},
+  {name: "Channel 24", url: "https://livecdn.channel24bd.tv/live/ecnnlive/playlist.m3u8"},
+  {name: "ATN News", url: "https://cdn-01.bongo-solutions.com/live/1787/atnnews/index.m3u8"},
+  {name: "GTV", url: "https://gazi-live.s3.ap-southeast-1.amazonaws.com/live/gtv/index.m3u8"},
+  {name: "Deepto TV", url: "https://cdn-01.bongo-solutions.com/live/1789/deeptotv/index.m3u8"}
+];
 
-async function loadM3U() {
-  try {
-    let res = await fetch(proxy + encodeURIComponent(m3uUrl));
-    if(!res.ok) throw new Error("Server error: " + res.status);
-    let text = await res.text();
-    if(!text.includes("#EXTM3U")) throw new Error("Invalid M3U");
-    parseM3U(text);
-  } catch(e) {
-    document.getElementById('channels').innerHTML = `<div class="error">Failed to load.<br>Error: ${e.message}<br><br>Turn on Desktop site in Chrome menu.</div>`;
-  }
-}
+const video = document.getElementById('video');
+const channelList = document.getElementById('channels');
 
-function parseM3U(data) {
-  let lines = data.split('\n');
-  let channels = [];
-  let name = "Channel";
-
-  for(let i=0; i<lines.length; i++) {
-    if(lines[i].startsWith('#EXTINF')) {
-      let match = lines[i].match(/,(.*)$/);
-      name = match && match[1]? match[1].trim() : "Channel";
-    } else if(lines[i].startsWith('http') && lines[i].includes('.m3u8')) {
-      channels.push({name: name, url: lines[i].trim()});
-    }
-  }
-
-  if(channels.length === 0) {
-    document.getElementById('channels').innerHTML = `<div class="error">No channels found.</div>`;
-    return;
-  }
-
-  document.getElementById('channels').innerHTML = "";
-  channels.forEach(ch => {
+function loadChannels() {
+  channels.forEach((ch, i) => {
     let div = document.createElement('div');
     div.className = 'channel';
     div.innerText = ch.name;
-    div.onclick = () => playChannel(ch.url);
-    document.getElementById('channels').appendChild(div);
+    div.onclick = () => playChannel(ch.url, i);
+    channelList.appendChild(div);
   });
-
-  playChannel(channels[0].url);
+  playChannel(channels[0].url, 0);
 }
 
-function playChannel(url) {
+function playChannel(url, index) {
   if(window.hls) window.hls.destroy();
+
+  document.querySelectorAll('.channel').forEach(c => c.style.background = '#1e1e1e');
+  document.querySelectorAll('.channel')[index].style.background = '#e50914';
+
   if(Hls.isSupported()) {
     window.hls = new Hls();
     window.hls.loadSource(url);
-    window.hls.attachMedia(document.getElementById('video'));
+    window.hls.attachMedia(video);
   } else {
-    document.getElementById('video').src = url;
+    video.src = url;
   }
-  document.getElementById('video').play().catch(e => console.log(e));
+  video.play().catch(e => console.log(e));
 }
 
-loadM3U();
+loadChannels();
 </script>
 </body>
 </html>
