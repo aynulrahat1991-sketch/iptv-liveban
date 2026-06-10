@@ -12,9 +12,9 @@ header h2 {margin:0;color:#e50914;}
 .container {padding:15px;max-width:1300px;margin:auto;}
 video {width:100%;max-height:65vh;background:#000;border-radius:8px;}
 .channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:15px;}
-.channel {background:#1e1e1e;padding:12px;text-align:center;border-radius:6px;cursor:pointer;font-size:14px;transition:0.2s;border:1px solid #333;}
-.channel:hover {background:#e50914;transform:scale(1.05);}
-.loading,.error {text-align:center;padding:30px;color:#888;font-size:16px;}
+.channel {background:#1e1e1e;padding:12px;text-align:center;border-radius:6px;cursor:pointer;font-size:14px;border:1px solid #333;}
+.channel:hover {background:#e50914;}
+.loading,.error {text-align:center;padding:30px;color:#888;}
 .error {color:#ff4444;}
 </style>
 </head>
@@ -28,30 +28,18 @@ video {width:100%;max-height:65vh;background:#000;border-radius:8px;}
 </div>
 
 <script>
-const proxy = "https://cors.sh/";
+const proxy = "https://api.allorigins.win/raw?url=";
 const m3uUrl = "https://raw.githubusercontent.com/ar-rony/smartiptv-playlist/master/MYIPTVLIST.m3u";
-const video = document.getElementById('video');
-const channelList = document.getElementById('channels');
 
 async function loadM3U() {
   try {
-    let res = await fetch(proxy + m3uUrl, {
-      headers: {'x-requested-with': 'XMLHttpRequest'}
-    });
-    
+    let res = await fetch(proxy + encodeURIComponent(m3uUrl));
     if(!res.ok) throw new Error("Server error: " + res.status);
-    
     let text = await res.text();
-    
-    if(!text.includes("#EXTM3U")) throw new Error("Invalid M3U file");
-    
+    if(!text.includes("#EXTM3U")) throw new Error("Invalid M3U");
     parseM3U(text);
-    
   } catch(e) {
-    channelList.innerHTML = `<div class="error">Failed to load channels.<br><br>
-    Error: ${e.message}<br><br>
-    Solution: Turn on 'Desktop site' in Chrome menu, or try again later.</div>`;
-    console.log("Error:", e);
+    document.getElementById('channels').innerHTML = `<div class="error">Failed to load.<br>Error: ${e.message}<br><br>Turn on Desktop site in Chrome menu.</div>`;
   }
 }
 
@@ -70,37 +58,32 @@ function parseM3U(data) {
   }
 
   if(channels.length === 0) {
-    channelList.innerHTML = `<div class="error">No channels found in M3U file.</div>`;
+    document.getElementById('channels').innerHTML = `<div class="error">No channels found.</div>`;
     return;
   }
 
-  channelList.innerHTML = "";
+  document.getElementById('channels').innerHTML = "";
   channels.forEach(ch => {
     let div = document.createElement('div');
     div.className = 'channel';
     div.innerText = ch.name;
-    div.onclick = () => playChannel(ch.url, div);
-    channelList.appendChild(div);
+    div.onclick = () => playChannel(ch.url);
+    document.getElementById('channels').appendChild(div);
   });
 
-  playChannel(channels[0].url, channelList.firstChild);
+  playChannel(channels[0].url);
 }
 
-function playChannel(url, element) {
+function playChannel(url) {
   if(window.hls) window.hls.destroy();
-  
-  document.querySelectorAll('.channel').forEach(c => c.style.background = '#1e1e1e');
-  if(element) element.style.background = '#e50914';
-
   if(Hls.isSupported()) {
     window.hls = new Hls();
     window.hls.loadSource(url);
-    window.hls.attachMedia(video);
-    window.hls.on(Hls.Events.ERROR, (e,data) => console.log("HLS Error:", data));
+    window.hls.attachMedia(document.getElementById('video'));
   } else {
-    video.src = url;
+    document.getElementById('video').src = url;
   }
-  video.play().catch(e => console.log("Play Error:", e));
+  document.getElementById('video').play().catch(e => console.log(e));
 }
 
 loadM3U();
