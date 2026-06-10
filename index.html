@@ -1,62 +1,105 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live TV Bangladesh</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
+* {box-sizing: border-box;}
 body {margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;}
-header {background:#000;padding:15px;text-align:center;}
+header {background:#000;padding:15px;text-align:center;border-bottom:2px solid red;}
 header h2 {margin:0;color:red;}
-.container {padding:10px;}
+.container {padding:10px;max-width:1200px;margin:auto;}
 video {width:100%;max-height:60vh;background:#000;border-radius:8px;}
-.channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:15px;}
-.channel {background:#222;padding:10px;text-align:center;border-radius:6px;cursor:pointer;}
-.channel:hover {background:red;}
+.channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:15px;}
+.channel {background:#222;padding:12px;text-align:center;border-radius:6px;cursor:pointer;font-size:14px;transition:0.2s;}
+.channel:hover {background:red;transform:scale(1.05);}
+.loading {text-align:center;padding:20px;color:#888;}
+.ad {margin:15px 0;text-align:center;background:#222;padding:10px;border-radius:6px;}
 </style>
 </head>
 <body>
 <header><h2>Live TV Bangladesh</h2></header>
 <div class="container">
   <video id="video" controls autoplay></video>
-  <div class="channel-list" id="channels"></div>
+
+  <div class="ad">
+    <!-- Adsterra Script Here -->
+  </div>
+
+  <div class="channel-list" id="channels">
+    <div class="loading">Loading channels...</div>
+  </div>
 </div>
 
 <script>
 const proxy = "https://corsproxy.io/?";
+const m3uUrl = "https://go.skym3u.top/k98v.m3u";
 const video = document.getElementById('video');
-
-const channels = [
-  {name:"Somoy TV", url:"https://live1.livetvsd.com:19360/hls/live2.m3u8"},
-  {name:"Jamuna TV", url:"https://live1.livetvsd.com:19360/hls/live4.m3u8"},
-  {name:"News24", url:"https://live1.livetvsd.com:19360/hls/live5.m3u8"},
-  {name:"Independent TV", url:"https://live1.livetvsd.com:19360/hls/live6.m3u8"}
-];
-
 const channelList = document.getElementById('channels');
-channels.forEach(ch => {
-  let div = document.createElement('div');
-  div.className = 'channel';
-  div.innerText = ch.name;
-  div.onclick = () => playChannel(ch.url);
-  channelList.appendChild(div);
-});
+
+async function loadM3U() {
+  try {
+    let res = await fetch(proxy + encodeURIComponent(m3uUrl));
+    if(!res.ok) throw new Error("Network error");
+    let text = await res.text();
+    parseM3U(text);
+  } catch(e) {
+    channelList.innerHTML = "<div class='loading'>Failed to load channels. Check M3U link.</div>";
+    console.log("Error:", e);
+  }
+}
+
+function parseM3U(data) {
+  let lines = data.split('\n');
+  let channels = [];
+  let name = "Unknown";
+
+  for(let i=0; i<lines.length; i++) {
+    if(lines[i].startsWith('#EXTINF')) {
+      let match = lines[i].match(/,(.*)$/);
+      name = match? match[1].trim() : "Unknown";
+    } else if(lines[i].startsWith('http')) {
+      channels.push({name: name, url: lines[i].trim()});
+      name = "Unknown";
+    }
+  }
+
+  if(channels.length === 0) {
+    channelList.innerHTML = "<div class='loading'>No channels found</div>";
+    return;
+  }
+
+  channelList.innerHTML = "";
+  channels.forEach(ch => {
+    let div = document.createElement('div');
+    div.className = 'channel';
+    div.innerText = ch.name;
+    div.onclick = () => playChannel(ch.url);
+    channelList.appendChild(div);
+  });
+
+  // Auto play first channel
+  playChannel(channels[0].url);
+}
 
 function playChannel(url) {
-  console.log("Trying to play:", url);
+  if(window.hls) window.hls.destroy();
+
   if(Hls.isSupported()) {
-    let hls = new Hls();
-    hls.loadSource(proxy + encodeURIComponent(url));
-    hls.attachMedia(video);
-    hls.on(Hls.Events.ERROR, (e,data) => console.log("HLS Error:", data));
-  } else {
+    window.hls = new Hls();
+    window.hls.loadSource(proxy + encodeURIComponent(url));
+    window.hls.attachMedia(video);
+    window.hls.on(Hls.Events.ERROR, (e,data) => console.log("HLS Error:", data));
+  } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = proxy + encodeURIComponent(url);
   }
   video.play().catch(e => console.log("Play Error:", e));
 }
 
-playChannel(channels[0].url);
+// Load M3U on page load
+loadM3U();
 </script>
 </body>
 </html>
