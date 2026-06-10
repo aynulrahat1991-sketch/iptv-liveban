@@ -3,71 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live TV Bangladesh</title>
+<title>Live TV BD</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
-* {box-sizing: border-box;}
-body {margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;}
-header {background:#000;padding:15px;text-align:center;border-bottom:2px solid red;}
-header h2 {margin:0;color:red;}
-.container {padding:10px;max-width:1200px;margin:auto;}
-video {width:100%;max-height:60vh;background:#000;border-radius:8px;}
-.channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:15px;}
-.channel {background:#222;padding:12px;text-align:center;border-radius:6px;cursor:pointer;font-size:14px;transition:0.2s;}
-.channel:hover {background:red;transform:scale(1.05);}
-.loading {text-align:center;padding:20px;color:#888;}
-.ad {margin:15px 0;text-align:center;background:#222;padding:10px;border-radius:6px;}
+body {margin:0;font-family:Arial;background:#0a0a0a;color:#fff;}
+header {background:#000;padding:15px;text-align:center;border-bottom:2px solid #e50914;}
+header h2 {margin:0;color:#e50914;}
+.container {padding:15px;max-width:1300px;margin:auto;}
+video {width:100%;max-height:65vh;background:#000;border-radius:8px;}
+.channel-list {display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:15px;}
+.channel {background:#1e1e1e;padding:12px;text-align:center;border-radius:6px;cursor:pointer;font-size:14px;transition:0.2s;border:1px solid #333;}
+.channel:hover {background:#e50914;transform:scale(1.05);}
+.loading,.error {text-align:center;padding:30px;color:#888;font-size:16px;}
+.error {color:#ff4444;}
 </style>
 </head>
 <body>
 <header><h2>Live TV Bangladesh</h2></header>
 <div class="container">
-  <video id="video" controls autoplay></video>
-
-  <div class="ad">
-    <!-- Adsterra Script Here -->
-  </div>
-
+  <video id="video" controls autoplay muted></video>
   <div class="channel-list" id="channels">
-    <div class="loading">Loading channels...</div>
+    <div class="loading">Connecting to server...</div>
   </div>
 </div>
 
 <script>
-const proxy = "https://api.allorigins.win/raw?url=";
+const proxies = [
+  "https://cors.sh/",
+  "https://api.allorigins.win/raw?url=",
+  "https://api.codetabs.com/v1/proxy?quest="
+];
 const m3uUrl = "https://go.skym3u.top/k98v.m3u";
 const video = document.getElementById('video');
 const channelList = document.getElementById('channels');
 
 async function loadM3U() {
-  try {
-    let res = await fetch(proxy + encodeURIComponent(m3uUrl));
-    if(!res.ok) throw new Error("Network error");
-    let text = await res.text();
-    parseM3U(text);
-  } catch(e) {
-    channelList.innerHTML = "<div class='loading'>Failed to load channels. Check M3U link.</div>";
-    console.log("Error:", e);
+  let lastError = "";
+
+  for(let proxy of proxies) {
+    try {
+      channelList.innerHTML = `<div class="loading">Trying server ${proxies.indexOf(proxy)+1} of 3...</div>`;
+
+      let res = await fetch(proxy + m3uUrl, {
+        headers: proxy.includes('cors.sh')? {'x-requested-with': 'XMLHttpRequest'} : {}
+      });
+
+      if(!res.ok) throw new Error("Status " + res.status);
+
+      let text = await res.text();
+      if(text.includes("#EXTM3U") || text.includes("#EXTINF")) {
+        parseM3U(text);
+        return;
+      } else {
+        throw new Error("Invalid M3U data");
+      }
+    } catch(e) {
+      lastError = e.message;
+      console.log("Proxy failed:", proxy, e);
+    }
   }
+
+  channelList.innerHTML = `<div class="error">All servers failed.<br>Error: ${lastError}<br><br>Check if M3U link is working: <a href="${m3uUrl}" target="_blank" style="color:#e50914">Test Link</a></div>`;
 }
 
 function parseM3U(data) {
   let lines = data.split('\n');
   let channels = [];
-  let name = "Unknown";
+  let name = "Channel";
 
   for(let i=0; i<lines.length; i++) {
     if(lines[i].startsWith('#EXTINF')) {
       let match = lines[i].match(/,(.*)$/);
-      name = match? match[1].trim() : "Unknown";
-    } else if(lines[i].startsWith('http')) {
+      name = match && match[1]? match[1].trim() : "Channel";
+    } else if(lines[i].startsWith('http') && lines[i].includes('.m3u8')) {
       channels.push({name: name, url: lines[i].trim()});
-      name = "Unknown";
+      name = "Channel";
     }
   }
 
   if(channels.length === 0) {
-    channelList.innerHTML = "<div class='loading'>No channels found</div>";
+    channelList.innerHTML = `<div class="error">No playable channels found in M3U file.</div>`;
     return;
   }
 
@@ -86,13 +101,18 @@ function parseM3U(data) {
 function playChannel(url) {
   if(window.hls) window.hls.destroy();
 
+  channelList.querySelectorAll('.channel').forEach(c => c.style.background = '#1e1e1e');
+  event && event.target && (event.target.style.background = '#e50914');
+
   if(Hls.isSupported()) {
     window.hls = new Hls();
-    window.hls.loadSource(proxy + encodeURIComponent(url));
+    window.hls.loadSource(url);
     window.hls.attachMedia(video);
-    window.hls.on(Hls.Events.ERROR, (e,data) => console.log("HLS Error:", data));
+    window.hls.on(Hls.Events.ERROR, (e,data) => {
+      if(data.fatal) console.log("HLS Fatal Error:", data);
+    });
   } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = proxy + encodeURIComponent(url);
+    video.src = url;
   }
   video.play().catch(e => console.log("Play Error:", e));
 }
